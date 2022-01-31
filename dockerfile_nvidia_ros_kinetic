@@ -17,6 +17,7 @@ RUN rosdep init \
  && rosdep fix-permissions \
  && rosdep update
 RUN echo "source /opt/ros/kinetic/setup.bash" >> ~/.bashrc
+RUN source ~/.bashrc
 
 # Change the default shell to Bash
 SHELL [ "/bin/bash" , "-c" ]
@@ -27,3 +28,24 @@ RUN apt-get install -y ros-kinetic-ros-control ros-kinetic-ros-controllers ros-k
 RUN apt-get update
 RUN apt-get install -y ros-kinetic-gazebo-ros-pkgs ros-kinetic-gazebo-ros-control ros-kinetic-multimaster-fkie
 RUN apt-get update
+
+# Create a Catkin workspace
+RUN source /opt/ros/kinetic/setup.bash \
+ && mkdir -p ~/catkin_ws/src \
+ && cd ~/catkin_ws/ \
+ && catkin_make \
+ && source devel/setup.bash
+
+RUN echo "source ~/catkin_ws/devel/setup.bash" >> ~/.bashrc
+RUN source ~/.bashrc
+
+# Lets also install nano editor. easy edit files
+RUN apt-get update
+RUN DEBIAN_FRONTEND='noninteractive' apt-get install -y --no-install-recommends nano
+RUN DEBIAN_FRONTEND='noninteractive' apt-get install -y --no-install-recommends gedit
+
+# First we need to install x11vnc inside the docker container, so we can see the GUI from VNC viewver in windows.
+# So inside the docker container
+RUN apt-get update
+RUN DEBIAN_FRONTEND='noninteractive' apt-get install -y --no-install-recommends x11vnc xvfb xterm x11-xserver-utils
+RUN DEBIAN_FRONTEND='noninteractive' apt-get install -y --no-install-recommends metacity
